@@ -45,20 +45,24 @@ fn rsbox(state: u64) -> u64 {
     result
 }
 
-fn encrypt_block(msg: u64, key: Key) -> u64 {
+fn encrypt_block(msg: u64, key: Key, rounds: usize) -> u64 {
     let mut state = msg;
-    for key_byte in key.iter().take(6) {
+    for key_byte in key.iter().take(rounds) {
         state = add_key(state, *key_byte);
         state = sbox(state);
         state = ror(state);
     }
-    add_key(state, key[6])
+    if(rounds == 6) {
+        add_key(state, key[6])
+    } else {
+        state
+    }
 }
 
-fn decrypt_block(msg: u64, key: Key) -> u64 {
+fn decrypt_block(msg: u64, key: Key, rounds: usize) -> u64 {
     let mut state = msg;
     state = add_key(state, key[6]);
-    for key_byte in key.iter().rev().skip(1) {
+    for key_byte in key.iter().rev().skip(1).take(rounds) {
         state = rol(state);
         state = rsbox(state);
         state = add_key(state, *key_byte);
@@ -68,6 +72,7 @@ fn decrypt_block(msg: u64, key: Key) -> u64 {
 
 fn main() {
     let key = [0xC0, 0xFF, 0xEE, 0x15, 0xFF, 0xFF, 0xEE];
-    let enc = encrypt_block(0x00DEADBEEF, key);
-    println!("{:X}", decrypt_block(enc, key));
+    let enc = encrypt_block(0x00DEADBEEF, key, 3);
+    println!("{:X}", enc);
+    println!("{:X}", decrypt_block(0xA85A692205, key, 3));
 }
