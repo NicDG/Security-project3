@@ -2,3 +2,6 @@
 name = "bad-block-cipher"
 version = "0.1.0"
 authors = ["Simon Persson <simon@flaskpost.org>"]
+
+[dependencies]
+fnv = "1.0.0"
